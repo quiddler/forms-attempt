@@ -12,6 +12,9 @@ code {
     monospace;
 }
 
+.col {
+  margin-top: 1.25rem;
+}
 
 .form-control {
   border-radius: 0%;
@@ -38,4 +41,12 @@ code {
 
 .crazy-label {
   animation: floatdown 1s ease-out;
+}
+
+.MuiFormControl-root-175 {
+  width: 100%;
+}
+
+.md-form {
+  margin-top: 0.25rem;
 }
