@@ -1,18 +1,20 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import {MDBInput} from 'mdbreact'
+import ZgoCheckbox from './zgo-checkbox';
+import ZgoDatePicker from './zgo-date-picker';
  
  const initialState = {
 
     employeeName: '',
     employeePhone: '',
     employeeBaseLocation: '',
-    employeeDateWorkBegan: null,
+    employeeDateWorkBegan: new Date(),
     employeeTimeWorkBegan: '',
     employeeSignature: '',
-    employeeDateSigned: null,
+    employeeDateSigned: new Date(),
 
-    incidentDate: null,
+    incidentDate: new Date(),
     incidentTime: '',
     incidentAddress: '',
     incidentCity: '',
@@ -30,7 +32,7 @@ import {MDBInput} from 'mdbreact'
     fortecVehicleNumber : '',
     fortecVehicleLicensePlate: '',
     fortecVehicleDamages: '',
-    fortecVehicleAnyoneInjured: '',
+    fortecVehicleAnyoneInjured: false,
     fortecVehiclePoliceReportFiled: '',
     fortecVehiclePoliceReportNumber: '',
     fortecVehicleEmployeeSited: false,
@@ -64,7 +66,7 @@ import {MDBInput} from 'mdbreact'
     otherVehicleDamages: '',
     otherVehicleMake: '',
     otherVehicleModel: '',
-    otherVehicleYear: null,
+    otherVehicleYear: new Date(),
     otherVehicleLicenseNumber : '',
     otherVehicleStateRegistered: '',
 
@@ -163,12 +165,12 @@ import {MDBInput} from 'mdbreact'
          }, 400);
        }}
      >
-       {({ isSubmitting }) => (
+       {({ isSubmitting, values }) => (
            <Form>
-           <div className="container-fluid form-group">
+           <div className="container form-group">
                <div className="row">
                     <div className="col col-md-4 col-sm-6 col-12 col-lg-3">
-                        <label htmlFor="employeeName">Your Name:</label>
+                        <label className="crazy-label" htmlFor="employeeName">Your Name:</label>
                         <Field type="text" name="employeeName" className="form-control"/>
                         <ErrorMessage className="error" name="employeeName" component="div" />
                     </div>
@@ -182,11 +184,13 @@ import {MDBInput} from 'mdbreact'
                         <Field type="text" name="employeeBaseLocation" className="form-control" />
                         <ErrorMessage className="error" name="employeeBaseLocation" component="div" />
                     </div>
-                    <div className="col col-md-4 col-sm-6 col-12 col-lg-3">
-                        <label htmlFor="employeeDateWorkBegan">Date Work Began:</label>
-                        <Field type="date" name="employeeDateWorkBegan" className="form-control" />
-                        <ErrorMessage className="error" name="employeeDateWorkBegan" component="div" />
-                    </div>
+
+
+
+                    <ZgoDatePicker cb={(d: Date) => values.employeeDateWorkBegan = d} text="Date work began:" />
+
+
+
                     <div className="col col-md-4 col-sm-6 col-12 col-lg-3">
                         <label htmlFor="employeeTimeWorkBegan">Time Work Began:</label>
                         <Field type="time" name="employeeTimeWorkBegan"  className="form-control" />
@@ -302,14 +306,8 @@ import {MDBInput} from 'mdbreact'
 
 
 
-                <div className="col col-md-4 col-sm-6 col-12 col-lg-3">
-                    <div className="custom-control custom-checkbox">
-                    <label htmlFor="fortecVehicleAnyoneInjured" className="custom-control-label">Anyone Injured:</label>
-                        <Field type="checkbox" checked={initialState.fortecVehicleAnyoneInjured} name="fortecVehicleAnyoneInjured" className="custom-control-input"  />
-                        
-                        <ErrorMessage className="error" name="fortecVehicleAnyoneInjured" component="div" />
-                    </div>
-                    </div>
+                
+                <ZgoCheckbox cb={() => values.fortecVehicleAnyoneInjured = !values.fortecVehicleAnyoneInjured} text="Was anyone injured?"/>
 
 
                     <div className="col col-md-4 col-sm-6 col-12 col-lg-3">

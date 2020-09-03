@@ -11,3 +11,31 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.form-control {
+  border-radius: 0%;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-bottom: 2px solid rgba(56, 39, 153, 0.78);
+}
+
+@keyframes floatdown {
+  0% {
+    position: absolute;
+    top: -20;
+  }
+  100% {
+    position: relative;
+    top: 20;
+  }
+}
+
+.crazy-label {
+  animation: floatdown 1s ease-out;
+}

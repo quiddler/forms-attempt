@@ -13,8 +13,6 @@ const ZgoCheckbox = (props: any) => {
                     id={props.text}
                     name={props.text}
                     type="checkbox"
-                    onBlur={props.formik.handleBlur}
-                    onChange={props.formik.handleChange}
                     checked={checked}
                 />
                 <label className="form-check-label" onClick={() => {setChecked(!checked); props.cb(); } }>{props.text}</label>
