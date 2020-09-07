@@ -1,63 +1,31 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 import { Formik, Form, useField } from 'formik';
 import * as Yup from 'yup';
 import ZgoDatePicker from './zgo-date-picker'
+import SignatureCanvas from 'react-signature-canvas'
+import ZgoTextInput from './zgo-text-input'
+import ZgoCheckbox from './zgo-checkbox'
+import ZgoSelect from './zgo-select'
 
  
- const MyTextInput = ({ label, ...props }) => {
-   // useField() returns [formik.getFieldProps(), formik.getFieldMeta()]
-   // which we can spread on <input> and also replace ErrorMessage entirely.
-   const [field, meta] = useField(props);
-   return (
-     <div className="col col-12 col-sm-6 col-md-4 col-lg-3">
-       <label htmlFor={props.id || props.name}>{label}</label>
-       <input className="form-control" {...field} {...props} />
-       {meta.touched && meta.error ? (
-         <div style={{position:"absolute", textAlign:"right", width:"90%", top:"0px" }} className="error">{meta.error}</div>
-       ) : null}
-     </div>
-   );
- };
- 
- const MyCheckbox = ({ children, ...props }) => {
-   // We need to tell useField what type of input this is
-   // since React treats radios and checkboxes differently
-   // than inputs/select/textarea.
-   const [field, meta] = useField({ ...props, type: 'checkbox' });
-   const [checked, setChecked] = React.useState(false)
-   return (
-     <div className="row w-100">
-     <div className="col col-12">
-       <div className="form-check" style={{textAlign:"center"}}>
-         <input checked={checked} className="form-control form-check-input" type="checkbox" {...field} {...props} />
-         <label className="form-check-label" onClick={() => {setChecked(!checked); props.cb(); } }>{children}</label>
-       
-       {meta.touched && meta.error ? (
-         <div style={{position:"absolute", textAlign:"center", width:"100%", top:"24px"}} className="error">{meta.error}</div>
-       ) : null}
-     </div>
-     </div>
-       </div>
-   );
- };
+const clear = (sigpad) => {
+  sigpad.clear()
+  document.getElementsByTagName("canvas")[0].style.background = "white";
+}
 
- const MySelect = ({ label, ...props }) => {
-   const [field, meta] = useField(props);
-   return (
-     <div className="col col-12 col-sm-6 col-md-4 col-lg-3">
-       <label htmlFor={props.id || props.name}>{label}</label>
-       <select {...field} {...props} className="form-control" />
-       {meta.touched && meta.error ? (
-         <div style={{position:"absolute", textAlign:"right", width:"90%", top:"0px"}} className="error">{meta.error}</div>
-       ) : null}
-     </div>
-   );
- };
- 
+const trim = (sigpad) => {
+  return sigpad.getTrimmedCanvas()
+               .toDataURL('image/png')
+}
+
+
  // And now we can use these
  const SignupForm = () => {
+
+  let sigpad = {}
+
    return (
-     <>
+     <div>
        <h1>Incident Report</h1>
        <hr />
        <Formik
@@ -81,17 +49,22 @@ import ZgoDatePicker from './zgo-date-picker'
              .required('Required'),
            acceptedTerms: Yup.boolean()
              .required('Required')
-             .oneOf([true], 'You must accept the terms and conditions.'),
+             .oneOf([true], 'You must state the truthfulness of this incident.'),
            jobType: Yup.string()
              .oneOf(
                ['designer', 'development', 'product', 'other'],
-               'Invalid Job Type'
+               'Job Title'
              )
              .required('Required'),
             
          })}
          onSubmit={(values, { setSubmitting }) => {
            setTimeout(() => {
+             values.signature = trim(sigpad);
+             if (sigpad.isEmpty()) {
+               setSubmitting(false);
+               return false;
+             }
              alert(JSON.stringify(values, null, 2));
              setSubmitting(false);
            }, 400);
@@ -101,30 +74,41 @@ import ZgoDatePicker from './zgo-date-picker'
          <Form>
            <div className="container">
                 <div className="row">
-                    <MyTextInput label="First Name" name="firstName" type="text" placeholder="Jane"/>
-                    <MyTextInput label="Last Name" name="lastName" type="text" placeholder="Doe" />
-                    <MyTextInput label="Email Address" name="email" type="email" placeholder="jane@formik.com" />
+                    <ZgoTextInput label="First Name" name="firstName" type="text" placeholder="Jane" icon="user"/>
+                    <ZgoTextInput label="Last Name" name="lastName" type="text" placeholder="Doe"  icon="user"/>
+                    <ZgoTextInput label="Email Address" name="email" type="email" placeholder="jdoe@fortecmedical.com" icon="user"/>
 
-                    <MySelect label="Job Title" name="jobType">
-                      <option value="">Select a job type</option>
+                    <ZgoSelect label="Job Title" name="jobType">
+                      <option value="">Job Title</option>
                       <option value="designer">Designer</option>
                       <option value="development">Developer</option>
                       <option value="product">Product Manager</option>
                       <option value="other">Other</option>
-                    </MySelect>
+                    </ZgoSelect>
 
                     <ZgoDatePicker cb={(d) => values.signatureDate = d} text="Today's date:"/>
                     
-                    <MyCheckbox name="acceptedTerms" cb={() => values.acceptedTerms = !values.acceptedTerms }>
-                      I accept the terms and conditions
-                    </MyCheckbox>
+                    <ZgoCheckbox name="acceptedTerms" cb={() => values.acceptedTerms = !values.acceptedTerms }>
+                      I proclaim that everything entered is truthful to the best of my knowledge
+                    </ZgoCheckbox>
           
+                    
+                    <br /><br /><br /><br />
+                    <div className="row w-100">
+                      <label style={{textAlign: "center", width: "100%"}}>Signature:</label>
+                      <SignatureCanvas canvasProps={{ className: "sigCanvas" }}
+                                  ref={(ref) => { sigpad = ref }}
+                                  id="sigcanvas"
+                                  onBegin={() => document.getElementsByTagName("canvas")[0].style.background = "white"}/>
+                    </div>
+
+
                     <div className="row" style={{width: "100%"}}>
                         <div className="col col-6">
-                          <button style={{width:"100%"}} className="btn btn-secondary" type="reset">Reset</button>
+                          <button style={{width:"100%"}} className="btn btn-warning" type="reset" onClick={() => clear(sigpad)} >Reset</button>
                         </div>
                         <div className="col col-6">
-                          <button style={{width:"100%"}} className="btn btn-primary" type="submit" disabled={isSubmitting}>Submit</button>
+                          <button style={{width:"100%"}} className="btn btn-primary" type="submit" disabled={isSubmitting} onClick={() => sigpad.isEmpty() ? document.getElementsByTagName('canvas')[0].style.background = "var(--danger)" : null}>Submit</button>
                         </div>
                         
                     </div>
@@ -133,7 +117,7 @@ import ZgoDatePicker from './zgo-date-picker'
            </div>
          </Form>)}
        </Formik>
-     </>
+     </div>
    );
  };
 

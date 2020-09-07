@@ -8,12 +8,6 @@ import SignupForm from './components/test-form-2';
 function App() {
   return (
     <div className="container">
-      <Test></Test>
-      
-      <Basic></Basic>
-
-      <ZgoDatePicker cb={(e: Date) => console.log(e)}/>
-
       <SignupForm></SignupForm>
     </div>
   );
