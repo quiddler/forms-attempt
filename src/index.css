@@ -47,6 +47,89 @@ code {
   width: 100%;
 }
 
+.far.fa-calendar.prefix {
+  right: 0;
+}
+
 .md-form {
   margin-top: 0.25rem;
+}
+
+.md-form label {
+  display: none;
+}
+
+#text {
+  display: none;
+}
+
+.color-block-5 {
+  padding: 1em;
+  display: inline-block;
+  transition: all 0.65s ease-out;
+  height: 160px;
+  width: 160px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.68);
+}
+
+.color-block-5:hover{
+  transform: scale(1.15);
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.88);
+}
+
+@media only screen and (min-width: 600px) {
+  .color-block-5 {
+    height: 185px;
+    width: 185px;
+  }
+}
+
+@media only screen and (min-width: 800px) {
+  .color-block-5 {
+    height: 210px;
+    width: 210px;
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .color-block-5 {
+    height: 250px;
+    width: 250px;
+  }
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+.mdb-wysiwyg-container {
+  width: 100%;
+  margin-left: 16px;
+}
+
+
+@media only screen and (min-width: 768px) {
+  .mdb-wysiwyg-container {
+    margin-left: 32px;
+  }
+}
+
+.mdb-wysiwyg-toolbar {
+  display: block !important;
+}
+
+.cke_chrome {
+  width: 100%;
+  margin-left: 32px !important;
+  margin-top: 16px !important;
+}
+
+.cke_reset {
+  width: 100% !important;
+}
+
+@media only screen and (min-width: 768px) {
+  .mdb-wysiwyg-toolbar {
+    display: flex !important;
+  }
 }

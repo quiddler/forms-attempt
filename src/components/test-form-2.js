@@ -8,7 +8,10 @@ import ZgoCheckbox from './zgo-checkbox'
 import ZgoSelect from './zgo-select'
 import ZgoTimePicker from './zgo-time-picker'
 
- 
+import CKEditor from 'ckeditor4-react';
+
+var incidentType = ""
+
 const clear = (sigpad) => {
   sigpad.clear()
   document.getElementsByTagName("canvas")[0].style.background = "white";
@@ -19,6 +22,144 @@ const trim = (sigpad) => {
                .toDataURL('image/png')
 }
 
+const validate = (values) => {
+
+  const errors = {};
+
+  if (!values.employeeEmail) {
+    errors.employeeEmail = 'Required';
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.employeeEmail)) {
+    errors.employeeEmail = 'Invalid';
+  }
+
+  if (!values.incidentCity) {
+    errors.incidentCity = 'Required';
+  } else if (values.incidentCity.length > 32) {
+    errors.incidentCity = 'Too Long';
+  }
+
+  if (!values.incidentAddress) {
+    errors.incidentAddress = 'Required';
+  } else if (values.incidentAddress.length > 32) {
+    errors.incidentAddress = 'Too Long';
+  }
+
+  if (!values.incidentState) {
+    errors.incidentState = 'Required';
+  } else if (values.incidentState.length > 20) {
+    errors.incidentZip = 'Not a state';
+  }
+
+  if (!values.incidentZip) {
+    errors.incidentZip = 'Required';
+  } else if (values.incidentZip.toString().length > 10) {
+    errors.incidentZip = 'Not a zip code';
+  }
+
+  if (!values.incidentTime) errors.incidentTime = 'Required'
+
+  if (!values.employeeStartTime) errors.employeeStartTime = 'Required'
+
+  if (!values.acceptedTerms) errors.acceptedTerms = 'Required'
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  return errors;
+};
+
+const initialState = {
+
+  jobType: '',
+
+
+  acceptedTerms: false,
+
+  employeeEmail: '@fortecmedical.com',
+  employeeSignature: '',
+  employeeDateSigned: new Date(),
+  employeeStartTime: '',
+
+  incidentDate: new Date(),
+  incidentTime: '',
+  incidentAddress: '',
+  incidentCity: '',
+  incidentState: '',
+  incidentZip: '',
+  incidentType: incidentType,
+
+  medicalProvider: '',
+  medicalAddress: '',
+  medicalCity: '',
+  medicalState: '',
+  medicalZipCode: '',
+  medicalPhone: '',
+
+  fortecVehicleNumber : '',
+  fortecVehicleLicensePlate: '',
+  fortecVehicleDamages: '',
+  fortecVehicleAnyoneInjured: false,
+  fortecVehiclePoliceReportFiled: '',
+  fortecVehiclePoliceReportNumber: '',
+  fortecVehicleEmployeeSited: false,
+  fortecVehicleTowedAway: false,
+
+  fortecEquipmentType: '',
+  fortecEquipmentSerialNumber: '',
+  fortecEquipmentFiberType: '',
+  fortecEquipmentLotNumber: '',
+  fortecEquipmentPatientInjured: false,
+  
+  damagedOtherVehicle: false,
+
+  otherVehicleOwner: '',
+  otherVehicleOwnerAddress: '',
+  otherVehicleOwnerCity: '',
+  otherVehicleOwnerState: '',
+  otherVehicleOwnerZipCode: '',
+  otherVehicleOwnerPhone: '',
+
+  driverDifferentThanOwner : false,
+
+  otherVehicleDriver: '',
+  otherVehicleDriverAddress: '',
+  otherVehicleDriverCity: '',
+  otherVehicleDriverState: '',
+  otherVehicleDriverZipCode: '',
+  otherVehicleDriverPhone: '',
+  otherVehicleInsuranceCompany: '',
+  otherVehiclePolicyNumber: '',
+  otherVehicleDamages: '',
+  otherVehicleMake: '',
+  otherVehicleModel: '',
+  otherVehicleYear: new Date(),
+  otherVehicleLicenseNumber : '',
+  otherVehicleStateRegistered: '',
+
+  damageLossOrTheft : false,
+  damageLossOrTheftWhatHappened: '',
+  damageLossOrTheftPoliceReportFiled: false,
+
+  detailedDescription : ''
+}
 
  // And now we can use these
  const SignupForm = () => {
@@ -30,38 +171,8 @@ const trim = (sigpad) => {
        <h1>Incident Report</h1>
        <hr />
        <Formik
-         initialValues={{
-           firstName: '',
-           lastName: '',
-           email: '',
-           acceptedTerms: false, // added for our checkbox
-           jobType: '', // added for our select
-           signatureDate: new Date(),
-           incidentTime: '',
-         }}
-         validationSchema={Yup.object({
-           firstName: Yup.string()
-             .max(15, 'Must be 15 characters or less')
-             .required('Required'),
-           lastName: Yup.string()
-             .max(20, 'Must be 20 characters or less')
-             .required('Required'),
-           email: Yup.string()
-             .email('Invalid email address')
-             .required('Required'),
-           acceptedTerms: Yup.boolean()
-             .required('Required')
-             .oneOf([true], 'You must state the truthfulness of this incident.'),
-           jobType: Yup.string()
-             .oneOf(
-               ['designer', 'development', 'product', 'other'],
-               'Job Title'
-             )
-             .required('Required'),
-          incidentTime: Yup.string()
-            .required('Required'),
-            
-         })}
+         initialValues={initialState}
+         validate={validate}
          onSubmit={(values, { setSubmitting }) => {
            setTimeout(() => {
              values.signature = trim(sigpad);
@@ -78,9 +189,13 @@ const trim = (sigpad) => {
          <Form>
            <div className="container">
                 <div className="row">
-                    <ZgoTextInput label="First Name" name="firstName" type="text" placeholder="Jane" icon="user"/>
-                    <ZgoTextInput label="Last Name" name="lastName" type="text" placeholder="Doe"  icon="user"/>
-                    <ZgoTextInput label="Email Address" name="email" type="email" placeholder="jdoe@fortecmedical.com" icon="user"/>
+                    <ZgoTextInput label="Email Address" name="employeeEmail" type="email" placeholder="jdoe@fortecmedical.com" icon="user"/>
+                    <ZgoTextInput label="Time you started work?" name="employeeStartTime" type="time" placeholder="12:00AM" />
+                    <ZgoTextInput label="Incident Address" name="incidentAddress" type="text" placeholder="6245 Hudson Crossing Parkway" />
+                    <ZgoTextInput label="Incident City" name="incidentCity" type="text" placeholder="Hudson" />
+                    <ZgoTextInput label="Incident State" name="incidentState" type="text" placeholder="Ohio" />
+                    <ZgoTextInput label="Incident Zip" name="incidentZip" type="number" placeholder="44236" />
+                    
 
                     <ZgoSelect label="Job Title" name="jobType">
                       <option value="">Job Title</option>
@@ -90,9 +205,9 @@ const trim = (sigpad) => {
                       <option value="other">Other</option>
                     </ZgoSelect>
 
-                    <ZgoDatePicker cb={(d) => values.signatureDate = d} text="Today's date:"/>
+                    <ZgoDatePicker cb={(d) => values.incidentDate = d} text="Incident Date:"/>
 
-                    <ZgoTimePicker cb={(t) => values.incidentTime = t} name="incidentTime" text="Incident Time:" />
+                    <ZgoTextInput label="Incident Time" name="incidentTime" type="time" placeholder="12:00AM" />
                     
                     <ZgoCheckbox name="acceptedTerms" cb={() => values.acceptedTerms = !values.acceptedTerms }>
                       I proclaim that everything entered is truthful to the best of my knowledge
@@ -100,6 +215,23 @@ const trim = (sigpad) => {
           
                     
                     <br /><br /><br /><br />
+                    <div className="row w-100">
+                        <CKEditor
+                            onInit={ editor => {
+                                // You can store the "editor" and use when it is needed.
+                                console.log( 'Editor is ready to use!', editor );
+                            } }
+                            onChange={ ( event, editor ) => {
+                                console.log( { event, editor } );
+                            } }
+                            onBlur={ ( event, editor ) => {
+                                console.log( 'Blur.', event );
+                            } }
+                            onFocus={ ( event, editor ) => {
+                                console.log( 'Focus.', event );
+                            } }
+                        />
+                    </div>
                     <div className="row w-100">
                       <label style={{textAlign: "center", width: "100%"}}>Signature:</label>
                       <SignatureCanvas canvasProps={{ className: "sigCanvas" }}

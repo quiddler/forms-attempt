@@ -13,7 +13,7 @@ const ZgoCheckbox = ( props: any) => {
      
         <div className="form-check" style={{textAlign:"center"}}>
         {meta.touched && meta.error ? (
-          <div style={{position:"absolute", textAlign:"center", width:"100%", top:"24px"}} className="error">{meta.error}</div>
+          <div style={{position:"absolute", textAlign:"center", width:"100%", top:"-24px"}} className="error">{meta.error}</div>
         ) : null}
           <input checked={checked} className="form-control form-check-input" type="checkbox" {...field} />
           <label className="form-check-label" onClick={() => {setChecked(!checked); props.cb(); } }>{props.children}</label>
