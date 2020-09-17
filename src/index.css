@@ -133,3 +133,16 @@ code {
     display: flex !important;
   }
 }
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: rgb(212, 237, 241) !important;
+  opacity: 0.81 !important; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: rgb(212, 237, 241);
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: rgb(212, 237, 241);
+}

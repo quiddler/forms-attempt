@@ -5,17 +5,17 @@ import BubbleSelect from './components/bubble-select';
 
 function App() {
 
-  const [form, setForm] = React.useState(false)
+  const [form, setForm] = React.useState("")
 
-  if (form) {
+  if (form !== "") {
     return (
       <div className="container">
-        <SignupForm></SignupForm>
+        <SignupForm type={form}></SignupForm>
       </div>)
   } else {
     return (
       <div className="container">
-        <BubbleSelect cb={(ans: boolean) => setForm(ans)}></BubbleSelect>
+        <BubbleSelect cb={(ans: string) => setForm(ans)}></BubbleSelect>
       </div>)
   }
 }
