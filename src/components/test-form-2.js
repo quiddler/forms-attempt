@@ -219,7 +219,7 @@ const medical = () => (
 const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   <div className="row" style={{padding: "1em"}}>
     <ZgoTextInput label="Other's Insurance" name="otherVehicleInsuranceCompany" type="text" placeholder="Allstate"/>
-    <ZgoTextInput label="Other's Policy #'" name="otherVehiclePolicyNumber" type="text" placeholder="12F67H980P-0231G"/>
+    <ZgoTextInput label="Other's Policy #" name="otherVehiclePolicyNumber" type="text" placeholder="12F67H980P-0231G"/>
     <ZgoTextInput label="Other's Damages" name="otherVehicleDamages" type="text" placeholder="Broken Windshield"/>
     <ZgoTextInput label="Vehicle Make" name="otherVehicleMake" type="text" placeholder="Honda"/>
     <ZgoTextInput label="Vehicle Model" name="otherVehicleModel" type="text" placeholder="CRV"/>
@@ -260,8 +260,8 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
    return (
      <div>
-       <h1 style={{marginTop: "1.25rem"}}>Incident Report</h1>
-       <hr />
+       <h1 className="cursor" style={{marginTop: "1.25rem"}} onClick={() => props.cb("")}><i className="fa fa-arrow-left"></i> Incident Report</h1>
+       <br />
        <Formik
          initialValues={initialState}
          validate={validate}
@@ -311,8 +311,8 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                     {props.type === "vehicleAccident" ? (
                       <div className="card w-100" style={{padding: "1em"}}>
                         <div className="row">
-                        <ZgoTextInput label="Fortec Vehicle Number" name="fortecVehicleNumber" type="text" placeholder="100A" />
-                        <ZgoTextInput label="Fortec License Plate" name="fortecVehicleLicensePlate" type="text" placeholder="HNA 2456" />
+                        <ZgoTextInput label="Fortec Vehicle #" name="fortecVehicleNumber" type="text" placeholder="100A" />
+                        <ZgoTextInput label="License Plate" name="fortecVehicleLicensePlate" type="text" placeholder="HNA 2456" />
                         <ZgoTextInput label="Damages" name="fortecVehicleDamages" type="text" placeholder="bumper busted" />
                         <ZgoCheckbox name="damagedOtherVehicle" cb={() => {values.damagedOtherVehicle = !values.damagedOtherVehicle; setDamagedOtherVehicle(!damagedOtherVehicle)}}>
                           Was another car involved?
@@ -346,11 +346,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                     <div className="card w-100">
                     <div className="row w-100">
                         <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Write a Detailed Description</h2>
-                        <CKEditor
-                            onBlur={ ( event ) => {
-                                values.detailedDescription = event.editor.getData();
-                            } }
-                        />
+                        <ZgoTextInput name="detailedDescription" type="textarea" />
                     </div>
                     </div>
                     <br />

@@ -10,7 +10,7 @@ function App() {
   if (form !== "") {
     return (
       <div className="container">
-        <SignupForm type={form}></SignupForm>
+        <SignupForm type={form} cb={(ans: string) => setForm(ans)}></SignupForm>
       </div>)
   } else {
     return (
