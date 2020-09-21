@@ -1,11 +1,12 @@
 import React from 'react';
-import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik'
+import { Formik, Form, Field, FieldArray } from 'formik'
 import ZgoDatePicker from './zgo-date-picker'
 import SignatureCanvas from 'react-signature-canvas'
 import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
+import MDBFileupload from 'mdb-react-fileupload'
 
 var incidentType = ""
 
@@ -213,6 +214,9 @@ const initialState = {
       code: "",
       addr: ""
     }
+  ],
+  files : [
+    {img: ""}
   ]
 }
 
@@ -258,35 +262,50 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   </div>
 )
 
- // And now we can use these
  const IncidentReport = (props) => {
-  incidentType = props.type;
-  let sigpad = {}
+  
+  incidentType = props.type
 
-  const [isInjured, setIsInjured] = React.useState(false);
-  const [policeReportFiled, setPoliceReportFiled] = React.useState(false);
+  let sigpad = {}
+  let fileupload = {}
+
+  const [isInjured, setIsInjured] = React.useState(false)
+  const [policeReportFiled, setPoliceReportFiled] = React.useState(false)
   const [damagedOtherVehicle, setDamagedOtherVehicle] = React.useState(false)
   const [differentDriver, setDifferentDriver] = React.useState(false)
+  
+  let selectedFiles = []
+
+  const handleFileuploadChange = file => console.log("File dude:", file)
+
+  const onSubmitFiles = () => {
+
+    let data = new FormData();
+    selectedFiles.map(f => data.append('file', f))
+    console.log('sumbit values', data.values())
+    console.log('submit keys', data.keys())
+  }
 
 
    return (
      <div>
-       <h1 className="cursor" style={{marginTop: "1.25rem"}} onClick={() => props.cb("")}><i className="fa fa-arrow-left"></i> Incident Report</h1>
+       <h1 className="cursor" style={{marginTop: "1.25rem"}} onClick={() => {props.cb("")}}><i className="fa fa-arrow-left"></i> Incident Report</h1>
        <br />
        <Formik
          initialValues={initialState}
          validate={validate}
          onSubmit={(values, { setSubmitting }) => {
            setTimeout(() => {
-             values.employeeSignature = trim(sigpad);
+            onSubmitFiles()
+             values.employeeSignature = trim(sigpad)
              if (sigpad.isEmpty()) {
-               setSubmitting(false);
-               return false;
+               setSubmitting(false)
+               return false
              }
              
-             console.log(values);
-             setSubmitting(false);
-           }, 400);
+             console.log(values)
+             setSubmitting(false)
+           }, 400)
          }}
        >
          {({ isSubmitting, values }) => (
@@ -294,7 +313,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
            <div className="container">
            <div className="card w-100" style={{padding: "1em"}}>
                 <div className="row">
-                  
+                    <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>General Information</h2>
                     <ZgoTextInput label="Email Address" name="employeeEmail" type="email" placeholder="jdoe@fortecmedical.com" icon="user"/>
                     <ZgoTextInput label="Time work started?" name="employeeStartTime" type="time" placeholder="12:00AM" />
                     <ZgoTextInput label="Incident Location" name="incidentAddress" type="text" placeholder="6245 Hudson Crossing Parkway" />
@@ -313,6 +332,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                    <br/>
                     {props.type === "personalInjury" ? (
                       <div className="card w-100" style={{padding: "1em"}}>
+                          <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Medical Information</h2>
                           {medical()}
                       </div>
                     ) : null }
@@ -322,6 +342,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                     {props.type === "vehicleAccident" ? (
                       <div className="card w-100" style={{padding: "1em"}}>
                         <div className="row">
+                        <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Vehicle Information</h2>
                         <ZgoTextInput label="Fortec Vehicle #" name="fortecVehicleNumber" type="text" placeholder="100A" />
                         <ZgoTextInput label="License Plate" name="fortecVehicleLicensePlate" type="text" placeholder="HNA 2456" />
                         <ZgoTextInput label="Damages" name="fortecVehicleDamages" type="text" placeholder="bumper busted" />
@@ -351,13 +372,13 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
 
 
-                    <br/>
+                   
                    <br/>
                    <br/>
                     <div className="card w-100" style={{padding: "1em"}}>
                     <div className="row w-100">
                         <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Write a Detailed Description</h2>
-                        <ZgoTextArea name="detailedDescription" label="" icon="pencil-alt" />
+                        <ZgoTextArea name="detailedDescription" label="" />
                     </div>
                     </div>
                     <br />
@@ -435,6 +456,38 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                       )}
                     </FieldArray>
                     </div>
+                   <br />
+                   <br />
+
+                   <div className="card" style={{padding: "1em"}}>
+                    <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Add Files</h2>
+                   <FieldArray name="files">
+                      {({ insert, remove, push }) => (
+                        <div>
+                          {values.files.length > 0 &&
+                            values.files.map((file, index) => (
+                                <div className="col" key={index}>
+                                  <label htmlFor={`files.${index}.img`}>File</label>
+                                  <MDBFileupload
+                                    getValue={handleFileuploadChange}
+                                    id={`files.${index}.img`}
+                                    ref={fileupload => fileupload = fileupload}
+                                  />
+                                </div>
+                            ))}
+                          <br />
+                          <br />
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => push({ img: ""})}
+                          >
+                            Add File
+                          </button>
+                        </div>
+                      )}
+                    </FieldArray>
+                    </div>
 
                    <br />
                    <br /> 
@@ -465,7 +518,6 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                               ? document.getElementsByTagName('canvas')[0].style.background = "var(--danger)" 
                               : null}>Submit</button>
                         </div>
-                        
                     </div>
                     </div>   
            

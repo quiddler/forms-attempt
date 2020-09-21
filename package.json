@@ -19,6 +19,7 @@
     "formik": "^2.1.5",
     "jodit-react": "^1.0.63",
     "mdb-react-wysiwyg": "file:mdb-react-wysiwyg-4.26.1.tgz",
+    "mdb-react-fileupload": "file:mdb-react-fileupload-4.26.1.tgz",
     "mdbreact": "git+https://oauth2:kc179LMw4fByzE4KB4tu@git.mdbootstrap.com/mdb/react/re-pro.git",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
