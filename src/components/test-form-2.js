@@ -1,11 +1,11 @@
 import React from 'react';
-import { Formik, Form } from 'formik'
+import { Formik, Form, Field, FieldArray, ErrorMessage } from 'formik'
 import ZgoDatePicker from './zgo-date-picker'
 import SignatureCanvas from 'react-signature-canvas'
 import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
-
-import CKEditor from 'ckeditor4-react'
+import ZgoTextArea from './zgo-text-area'
+import ZgoSelect from './zgo-select'
 
 var incidentType = ""
 
@@ -56,6 +56,8 @@ const validate = (values) => {
   if (!values.incidentTime) errors.incidentTime = 'Required'
 
   if (!values.employeeStartTime) errors.employeeStartTime = 'Required'
+
+  if (!values.detailedDescription) errors.detailedDescription = 'Required'
 
   if (!values.acceptedTerms) errors.acceptedTerms = 'Required'
 
@@ -203,6 +205,15 @@ const initialState = {
   damageLossOrTheft : false,
   damageLossOrTheftWhatHappened: '',
   damageLossOrTheftPoliceReportFiled: false,
+
+  witnesses : [
+    {
+      name: "",
+      desc: "",
+      code: "",
+      addr: ""
+    }
+  ]
 }
 
 const medical = () => (
@@ -273,7 +284,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                return false;
              }
              
-             alert(JSON.stringify(values, null, 2));
+             console.log(values);
              setSubmitting(false);
            }, 400);
          }}
@@ -343,13 +354,89 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                     <br/>
                    <br/>
                    <br/>
-                    <div className="card w-100">
+                    <div className="card w-100" style={{padding: "1em"}}>
                     <div className="row w-100">
                         <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Write a Detailed Description</h2>
-                        <ZgoTextInput name="detailedDescription" type="textarea" />
+                        <ZgoTextArea name="detailedDescription" label="" icon="pencil-alt" />
                     </div>
                     </div>
                     <br />
+                   <br />
+
+                    <div className="card" style={{padding: "1em"}}>
+                    <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Witnesses</h2>
+                   <FieldArray name="witnesses">
+                      {({ insert, remove, push }) => (
+                        <div>
+                          {values.witnesses.length > 0 &&
+                            values.witnesses.map((witness, index) => (
+                              <div className="row" key={index}>
+                                <div className="col">
+                                  <label htmlFor={`witnesses.${index}.name`}>Name</label>
+                                  <Field
+                                    name={`witnesses.${index}.name`}
+                                    placeholder="Jane Doe"
+                                    type="text"
+                                    className="form-control"
+                                  />
+                                </div>
+
+                                <div className="col">
+                                  <label htmlFor={`witnesses.${index}.addr`}>Address</label>
+                                  <Field
+                                    name={`witnesses.${index}.addr`}
+                                    placeholder=""
+                                    type="text"
+                                    className="form-control"
+                                  />
+                                </div>
+
+                                <div className="col">
+                                  <label htmlFor={`witnesses.${index}.desc`}>Description</label>
+                                  <Field
+                                    name={`witnesses.${index}.desc`}
+                                    placeholder=""
+                                    type="text"
+                                    className="form-control"
+                                  />
+                                </div>
+
+                                <div className="col">
+                                <ZgoSelect label="Code" name={`witnesses.${index}.code`}>
+                                  <option value="">Select</option>
+                                  <option value="employee">Employee</option>
+                                  <option value="pedestrian">Pedestrian</option>
+                                  <option value="client">Client</option>
+                                  <option value="witness">Witness</option>
+                                </ZgoSelect>
+                                </div>
+
+                                <div className="col">
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger"
+                                    onClick={() => remove(index)}
+                                  >
+                                    X
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          <br />
+                          <br />
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => push({ name: "", desc: "", code: "", addr: "" })}
+                          >
+                            Add Witness
+                          </button>
+                        </div>
+                      )}
+                    </FieldArray>
+                    </div>
+
+                   <br />
                    <br /> 
                     <ZgoCheckbox name="acceptedTerms" cb={() => values.acceptedTerms = !values.acceptedTerms }>
                       I proclaim that everything entered is truthful to the best of my knowledge
@@ -389,15 +476,3 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
  };
 
  export default IncidentReport
-
- /*
-
- <ZgoSelect label="Job Title" name="jobType">
-                      <option value="">Job Title</option>
-                      <option value="designer">Designer</option>
-                      <option value="development">Developer</option>
-                      <option value="product">Product Manager</option>
-                      <option value="other">Other</option>
-                    </ZgoSelect>
-
- */
