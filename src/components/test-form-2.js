@@ -6,7 +6,7 @@ import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
-import MDBFileupload from 'mdb-react-fileupload'
+import { MDBFileInput } from 'mdbreact';
 
 var incidentType = ""
 
@@ -267,7 +267,6 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   incidentType = props.type
 
   let sigpad = {}
-  let fileupload = {}
 
   const [isInjured, setIsInjured] = React.useState(false)
   const [policeReportFiled, setPoliceReportFiled] = React.useState(false)
@@ -276,7 +275,9 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   
   let selectedFiles = []
 
-  const handleFileuploadChange = file => console.log("File dude:", file)
+  const handleFileuploadChange = file => {
+    console.log("File dude:", file)
+  }
 
   const onSubmitFiles = () => {
 
@@ -391,6 +392,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                         <div>
                           {values.witnesses.length > 0 &&
                             values.witnesses.map((witness, index) => (
+                              <>
                               <div className="row" key={index}>
                                 <div className="col">
                                   <label htmlFor={`witnesses.${index}.name`}>Name</label>
@@ -431,17 +433,22 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                                   <option value="witness">Witness</option>
                                 </ZgoSelect>
                                 </div>
+                                
+                              </div>
+                              <div className="row">
 
-                                <div className="col">
-                                  <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    onClick={() => remove(index)}
-                                  >
-                                    X
-                                  </button>
+                                  <div className="col">
+                                        <button
+                                          style={{width: "94%"}}
+                                          type="button"
+                                          className="btn btn-danger"
+                                          onClick={() => remove(index)}
+                                        >
+                                          X
+                                        </button>
                                 </div>
                               </div>
+                              </>
                             ))}
                           <br />
                           <br />
@@ -466,17 +473,27 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                         <div>
                           {values.files.length > 0 &&
                             values.files.map((file, index) => (
-                                <div className="col" key={index}>
-                                  <label htmlFor={`files.${index}.img`}>File</label>
-                                  <MDBFileupload
+                              <div className="row">
+                                <div className="col-9" key={index}>
+                                  <label htmlFor={`files.${index}.img`}>File {`${index + 1}`}</label>
+                                  <MDBFileInput
+                                    multiple
                                     getValue={handleFileuploadChange}
                                     id={`files.${index}.img`}
-                                    ref={fileupload => fileupload = fileupload}
                                   />
                                 </div>
+                                <div className="col-3" >
+                                    <button
+                                      style={{height:"80%", marginTop: "3em"}}
+                                      type="button"
+                                      className="btn btn-danger"
+                                      onClick={() => remove(index)}
+                                    >
+                                      X
+                                    </button>
+                                </div>
+                              </div>
                             ))}
-                          <br />
-                          <br />
                           <button
                             type="button"
                             className="btn btn-secondary"
