@@ -6,7 +6,8 @@ import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
-import { MDBFileInput } from 'mdbreact';
+import 'react-dropzone-uploader/dist/styles.css'
+import Dropzone from 'react-dropzone-uploader'
 
 var incidentType = ""
 
@@ -287,6 +288,14 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
     console.log('submit keys', data.keys())
   }
 
+  const getUploadParams = ({meta}) => { return {url: 'https://httpbin.org/post'} }
+
+  const handleChangeStatus = ({meta, file}, status) => console.log(status, meta, file)
+
+  const handleSubmit = (files, allFiles) => {
+    console.log(files.map(f => f.meta))
+    allFiles.forEach(f => f.remove())
+  }
 
    return (
      <div>
@@ -476,10 +485,11 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                               <div className="row">
                                 <div className="col-9" key={index}>
                                   <label htmlFor={`files.${index}.img`}>File {`${index + 1}`}</label>
-                                  <MDBFileInput
-                                    multiple
-                                    getValue={handleFileuploadChange}
-                                    id={`files.${index}.img`}
+                                  <Dropzone
+                                    getUploadParams={getUploadParams}
+                                    onChangeStatus={handleChangeStatus}
+                                    onSubmit={handleSubmit}
+                                    accept="*"
                                   />
                                 </div>
                                 <div className="col-3" >
