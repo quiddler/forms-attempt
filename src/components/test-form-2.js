@@ -7,6 +7,7 @@ import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
 import MDBFileupload from 'mdb-react-fileupload'
+import { UploaderComponent } from '@syncfusion/ej2-react-inputs'
 
 var incidentType = ""
 
@@ -286,6 +287,21 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
     console.log('submit keys', data.keys())
   }
 
+  const uploaderTemplate = (data) => {
+    return (
+      <div>
+      <span className='wrapper'>
+          <span className={'icon template-icons sf-icon-${data.type}'} />
+          <span className='name file-name'>{data.name}</span>
+      </span>
+          <span className='file-size-td file-size'>{data.size} bytes</span>
+          <span className='e-icons e-file-remove-btn' title='Remove' /> <br/>
+          <progress id='progressBar' className='progressbar' value='0' max='100' />
+          <span className='percent-td percent' />
+    </div>);
+    }
+
+
 
    return (
      <div>
@@ -468,11 +484,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                             values.files.map((file, index) => (
                                 <div className="col" key={index}>
                                   <label htmlFor={`files.${index}.img`}>File</label>
-                                  <MDBFileupload
-                                    getValue={handleFileuploadChange}
-                                    id={`files.${index}.img`}
-                                    ref={fileupload => fileupload = fileupload}
-                                  />
+                                  <UploaderComponent />
                                 </div>
                             ))}
                           <br />
