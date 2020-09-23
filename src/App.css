@@ -19,3 +19,7 @@
 .MuiInputBase-input-28 {
   padding: 16px 0 7px !important;
 }
+
+.multi-file::placeholder {
+  color: red !important;
+}

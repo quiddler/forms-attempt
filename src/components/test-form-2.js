@@ -8,6 +8,7 @@ import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
 import 'react-dropzone-uploader/dist/styles.css'
 import Dropzone from 'react-dropzone-uploader'
+import { MDBFileInput, MDBInput } from 'mdbreact';
 
 var incidentType = ""
 
@@ -292,6 +293,8 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
   const handleChangeStatus = ({meta, file}, status) => console.log(status, meta, file)
 
+  const handleFileChange = (e) => console.log("ON CHANGE EVENT:", e.target.files)
+
   const handleSubmit = (files, allFiles) => {
     console.log(files.map(f => f.meta))
     allFiles.forEach(f => f.remove())
@@ -443,8 +446,8 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                                 </ZgoSelect>
                                 </div>
                                 
-                              </div>
-                              <div className="row">
+                              
+                             
 
                                   <div className="col">
                                         <button
@@ -456,7 +459,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                                           X
                                         </button>
                                 </div>
-                              </div>
+                                </div>
                               </>
                             ))}
                           <br />
@@ -485,11 +488,10 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                               <div className="row">
                                 <div className="col-9" key={index}>
                                   <label htmlFor={`files.${index}.img`}>File {`${index + 1}`}</label>
-                                  <Dropzone
-                                    getUploadParams={getUploadParams}
-                                    onChangeStatus={handleChangeStatus}
-                                    onSubmit={handleSubmit}
-                                    accept="*"
+                                  <input
+                                    type="file"
+                                    multiple
+                                    onChange={handleFileChange}
                                   />
                                 </div>
                                 <div className="col-3" >
