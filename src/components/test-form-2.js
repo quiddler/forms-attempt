@@ -6,9 +6,6 @@ import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
-import 'react-dropzone-uploader/dist/styles.css'
-import Dropzone from 'react-dropzone-uploader'
-import { MDBFileInput, MDBInput } from 'mdbreact';
 
 var incidentType = ""
 
@@ -124,15 +121,16 @@ const validate = (values) => {
 
     }
 
+    if(incidentType === "propertyDamage" || incidentType === "theft") {
+      if (!values.whatWasDamagedOrStolen) errors.whatWasDamagedOrStolen = "Required"
+    }
 
-
-
-
-
-
-
-
-
+    if(incidentType === "equipmentDamage" || incidentType === "equipmentInjury") {
+      if (!values.fortecEquipmentType) errors.fortecEquipmentType = "Required"
+      if (!values.fortecEquipmentSerialNumber) errors.fortecEquipmentSerialNumber = "Required"
+      if (!values.fortecEquipmentFiberType) errors.fortecEquipmentFiberType = "Required"
+      if (!values.fortecEquipmentLotNumber) errors.fortecEquipmentLotNumber = "Required"
+    }
 
 
   return errors;
@@ -205,8 +203,7 @@ const initialState = {
   otherVehicleLicenseNumber : '',
   otherVehicleStateRegistered: '',
 
-  damageLossOrTheft : false,
-  damageLossOrTheftWhatHappened: '',
+  whatWasDamagedOrStolen: '',
   damageLossOrTheftPoliceReportFiled: false,
 
   witnesses : [
@@ -218,8 +215,19 @@ const initialState = {
     }
   ],
   files : [
-    {img: ""}
   ]
+}
+
+function formatBytes(bytes, decimals = 2) {
+  if (bytes === 0) return '0 Bytes';
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 const medical = () => (
@@ -277,10 +285,6 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   
   let selectedFiles = []
 
-  const handleFileuploadChange = file => {
-    console.log("File dude:", file)
-  }
-
   const onSubmitFiles = () => {
 
     let data = new FormData();
@@ -289,15 +293,51 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
     console.log('submit keys', data.keys())
   }
 
-  const getUploadParams = ({meta}) => { return {url: 'https://httpbin.org/post'} }
+  const handleFileChange = (e) => {
+    const fileElem = document.getElementById("fileElem"),
+          fileList = document.getElementById("fileList");
 
-  const handleChangeStatus = ({meta, file}, status) => console.log(status, meta, file)
+      if (!fileElem.files.length) {
+        fileList.innerHTML = "<p>No files selected!</p>";
+      } else {
+        fileList.innerHTML = "";
+        const list = document.createElement("ul");
+        list.className = "list-group"
+        fileList.appendChild(list);
+        for (let i = 0; i < fileElem.files.length; i++) {
+          const li = document.createElement("li");
+          li.className = "list-group-item"
+          list.appendChild(li);
 
-  const handleFileChange = (e) => console.log("ON CHANGE EVENT:", e.target.files)
+          if (fileElem.files[i].type.includes("image")) {
 
-  const handleSubmit = (files, allFiles) => {
-    console.log(files.map(f => f.meta))
-    allFiles.forEach(f => f.remove())
+            const img = document.createElement("img");
+            img.src = URL.createObjectURL(fileElem.files[i]);
+
+            img.height = 75;
+            img.width = 75
+            img.onload = function() {
+              URL.revokeObjectURL(img.src);
+            }
+            img.className = "img-fluid"
+            li.appendChild(img);
+          } else {
+            const div = document.createElement("div")
+            div.className = "purple-gradient"
+            li.appendChild(div)
+          }
+
+          const info = document.createElement("span");
+          info.className="file-info"
+          info.innerHTML = fileElem.files[i].name + " : " + formatBytes(fileElem.files[i].size);
+          li.appendChild(info);
+        }
+      }
+  }
+
+  const handleFileSelect = () => {
+    var fileElem = document.getElementById("fileElem")
+    fileElem.click()
   }
 
    return (
@@ -383,7 +423,30 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                     ) : null }
 
 
+                    {props.type === "propertyDamage" ? (
+                      <div className="card w-100" style={{padding: "1em"}}>
+                          <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Property Damage Information</h2>
+                          <div className="row">
+                          <ZgoTextInput label="What was Damaged?" name="whatWasDamagedOrStolen" type="text" placeholder="" />
+                          <ZgoCheckbox name="damageLossOrTheftPoliceReportFiled" cb={() => values.damageLossOrTheftPoliceReportFiled = !values.damageLossOrTheftPoliceReportFiled}>
+                            Was a police report filed?
+                          </ZgoCheckbox>
+                          </div>
+                      </div>
+                    ) : null }
 
+
+                    {props.type === "theft" ? (
+                      <div className="card w-100" style={{padding: "1em"}}>
+                          <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Theft Information</h2>
+                          <div className="row">
+                          <ZgoTextInput label="What was stolen?" name="whatWasDamagedOrStolen" type="text" placeholder="" />
+                          <ZgoCheckbox name="damageLossOrTheftPoliceReportFiled" cb={() => values.damageLossOrTheftPoliceReportFiled = !values.damageLossOrTheftPoliceReportFiled}>
+                            Was a police report filed?
+                          </ZgoCheckbox>
+                          </div>
+                      </div>
+                    ) : null }
 
                    
                    <br/>
@@ -445,9 +508,6 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                                   <option value="witness">Witness</option>
                                 </ZgoSelect>
                                 </div>
-                                
-                              
-                             
 
                                   <div className="col">
                                         <button
@@ -466,7 +526,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                           <br />
                           <button
                             type="button"
-                            className="btn btn-secondary"
+                            className="btn btn-primary"
                             onClick={() => push({ name: "", desc: "", code: "", addr: "" })}
                           >
                             Add Witness
@@ -480,42 +540,24 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
                    <div className="card" style={{padding: "1em"}}>
                     <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Add Files</h2>
-                   <FieldArray name="files">
-                      {({ insert, remove, push }) => (
-                        <div>
-                          {values.files.length > 0 &&
-                            values.files.map((file, index) => (
-                              <div className="row">
-                                <div className="col-9" key={index}>
-                                  <label htmlFor={`files.${index}.img`}>File {`${index + 1}`}</label>
+                    <div className="container-fluid">
+                    <div className="row">
+                                <div className="col">
                                   <input
+                                    style={{display: "none"}}
                                     type="file"
+                                    id="fileElem"
+                                    accept="*"
                                     multiple
                                     onChange={handleFileChange}
                                   />
-                                </div>
-                                <div className="col-3" >
-                                    <button
-                                      style={{height:"80%", marginTop: "3em"}}
-                                      type="button"
-                                      className="btn btn-danger"
-                                      onClick={() => remove(index)}
-                                    >
-                                      X
-                                    </button>
+                                  <button type="button" className="btn btn-primary" id="fileSelect" onClick={handleFileSelect}>Select files</button> 
+                                  <div id="fileList">
+                                    <p>No files selected...</p>
+                                  </div>
                                 </div>
                               </div>
-                            ))}
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => push({ img: ""})}
-                          >
-                            Add File
-                          </button>
-                        </div>
-                      )}
-                    </FieldArray>
+                              </div>
                     </div>
 
                    <br />
