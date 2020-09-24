@@ -62,6 +62,7 @@ const validate = (values) => {
   if (!values.acceptedTerms) errors.acceptedTerms = 'Required'
 
   if(incidentType === "personalInjury") {
+      if (!values.whoWasInjured) errors.whoWasInjured = "Required"
       if (!values.medicalProvider) errors.medicalProvider = "Required"
       if (!values.medicalAddress) errors.medicalAddress = "Required"
       if (!values.medicalCity) errors.medicalCity = "Required"
@@ -76,6 +77,7 @@ const validate = (values) => {
       if (!values.fortecVehicleDamages) errors.fortecVehicleDamages = "Required"
       
       if (values.fortecVehicleAnyoneInjured) {
+        if (!values.whoWasInjured) errors.whoWasInjured = "Required"
         if (!values.medicalProvider) errors.medicalProvider = "Required"
         if (!values.medicalAddress) errors.medicalAddress = "Required"
         if (!values.medicalCity) errors.medicalCity = "Required"
@@ -125,11 +127,36 @@ const validate = (values) => {
       if (!values.whatWasDamagedOrStolen) errors.whatWasDamagedOrStolen = "Required"
     }
 
-    if(incidentType === "equipmentDamage" || incidentType === "equipmentInjury") {
+    if(incidentType === "equipmentDamage") {
       if (!values.fortecEquipmentType) errors.fortecEquipmentType = "Required"
       if (!values.fortecEquipmentSerialNumber) errors.fortecEquipmentSerialNumber = "Required"
       if (!values.fortecEquipmentFiberType) errors.fortecEquipmentFiberType = "Required"
       if (!values.fortecEquipmentLotNumber) errors.fortecEquipmentLotNumber = "Required"
+
+      if (values.fortecEquipmentPatientInjured) {
+        if (!values.whoWasInjured) errors.whoWasInjured = "Required"
+        if (!values.medicalProvider) errors.medicalProvider = "Required"
+        if (!values.medicalAddress) errors.medicalAddress = "Required"
+        if (!values.medicalCity) errors.medicalCity = "Required"
+        if (!values.medicalState) errors.medicalState = "Required"
+        if (!values.medicalZipCode) errors.medicalZipCode = "Required"
+        if (!values.medicalPhone) errors.medicalPhone = "Required"
+      }
+    }
+
+    if(incidentType === "equipmentInjury") {
+      if (!values.fortecEquipmentType) errors.fortecEquipmentType = "Required"
+      if (!values.fortecEquipmentSerialNumber) errors.fortecEquipmentSerialNumber = "Required"
+      if (!values.fortecEquipmentFiberType) errors.fortecEquipmentFiberType = "Required"
+      if (!values.fortecEquipmentLotNumber) errors.fortecEquipmentLotNumber = "Required"
+
+      if (!values.whoWasInjured) errors.whoWasInjured = "Required"
+      if (!values.medicalProvider) errors.medicalProvider = "Required"
+      if (!values.medicalAddress) errors.medicalAddress = "Required"
+      if (!values.medicalCity) errors.medicalCity = "Required"
+      if (!values.medicalState) errors.medicalState = "Required"
+      if (!values.medicalZipCode) errors.medicalZipCode = "Required"
+      if (!values.medicalPhone) errors.medicalPhone = "Required"
     }
 
 
@@ -138,6 +165,7 @@ const validate = (values) => {
 
 const initialState = {
 
+  whoWasInjured: "",
   acceptedTerms: false,
 
   employeeEmail: '@fortecmedical.com',
@@ -215,6 +243,7 @@ const initialState = {
     }
   ],
   files : [
+
   ]
 }
 
@@ -232,6 +261,7 @@ function formatBytes(bytes, decimals = 2) {
 
 const medical = () => (
   <div className="row" style={{padding: "1em"}}>
+  <ZgoTextInput label="Who was Injured?" name="whoWasInjured" type="text" placeholder="Jon Doe" />
   <ZgoTextInput label="Medical Provider" name="medicalProvider" type="text" placeholder="Robinson Memorial Hospital" />
   <ZgoTextInput label="Provider Address" name="medicalAddress" type="text" placeholder="123 Front Street" />
   <ZgoTextInput label="Provider City" name="medicalCity" type="text" placeholder="Kent" />
@@ -446,6 +476,48 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                           </ZgoCheckbox>
                           </div>
                       </div>
+                    ) : null }
+
+                    {props.type === "equipmentDamage" ? (
+                      <>
+                      <div className="card w-100" style={{padding: "1em"}}>
+                          <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Equipment Information</h2>
+                          <div className="row">
+                          <ZgoTextInput label="Equipment Type" name="fortecEquipmentType" type="text" placeholder="" />
+                          <ZgoTextInput label="Serial #" name="fortecEquipmentSerialNumber" type="text" placeholder="" />
+                          <ZgoTextInput label="Fiber Type" name="fortecEquipmentFiberType" type="text" placeholder="" />
+                          <ZgoTextInput label="Lot number" name="fortecEquipmentLotNumber" type="text" placeholder="" />
+                          <ZgoCheckbox name="fortecEquipmentPatientInjured" cb={() => {values.fortecEquipmentPatientInjured = !values.fortecEquipmentPatientInjured; setIsInjured(!isInjured);}}>
+                            Was anyone injured?
+                          </ZgoCheckbox>
+                          </div>
+                      </div>
+                      {isInjured ? (
+                            <div className="card w-100 mt-5" style={{padding: "1em"}}>
+                                <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Medical Information</h2>
+                                {medical()}
+                            </div>
+                          ) : null }
+                      </>
+                    ) : null }
+
+                    {props.type === "equipmentInjury" ? (
+                      <>
+                      <div className="card w-100" style={{padding: "1em"}}>
+                          <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Equipment Information</h2>
+                          <div className="row">
+                            <ZgoTextInput label="Equipment Type" name="fortecEquipmentType" type="text" placeholder="" />
+                            <ZgoTextInput label="Serial #" name="fortecEquipmentSerialNumber" type="text" placeholder="" />
+                            <ZgoTextInput label="Fiber Type" name="fortecEquipmentFiberType" type="text" placeholder="" />
+                            <ZgoTextInput label="Lot number" name="fortecEquipmentLotNumber" type="text" placeholder="" />
+                          </div>
+                      </div>
+
+                      <div className="card w-100 mt-5" style={{padding: "1em"}}>
+                        <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Medical Information</h2>
+                        {medical()}
+                      </div>
+                      </>
                     ) : null }
 
                    
