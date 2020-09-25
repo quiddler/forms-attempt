@@ -57,7 +57,7 @@ const validate = (values) => {
 
   if (!values.employeeStartTime) errors.employeeStartTime = 'Required'
 
-  if (!values.detailedDescription) errors.detailedDescription = 'Required'
+  if (!values.detailedDescription.trim()) errors.detailedDescription = 'Required'
 
   if (!values.acceptedTerms) errors.acceptedTerms = 'Required'
 
@@ -168,10 +168,11 @@ const initialState = {
   whoWasInjured: "",
   acceptedTerms: false,
 
-  employeeEmail: '@fortecmedical.com',
+  employeeEmail: '',
   employeeSignature: '',
   employeeDateSigned: new Date(),
   employeeStartTime: '',
+  employeePhone: '',
 
   detailedDescription : '',
 
@@ -243,8 +244,28 @@ const initialState = {
     }
   ],
   files : [
+    {
+      data: ''
+    }
+  ],
 
+  laserCaseNumber: '',
+  laserCustomer : '',
+  laserDoctorName: '',
+  laserProcedureName: '',
+  laserPatientReferenceNumber: '',
+  laserEveryoneWearingProtection: false,
+  laserWasAnyoneInjured: false,
+  laserSafetyOfficer: '',
+  laserDeputySafetyOfficer: '',
+  assetList: [
+    {
+      assetNumber: '',
+      assetModelName: '',
+      assetSerialNumber: ''
+    }
   ]
+
 }
 
 function formatBytes(bytes, decimals = 2) {
@@ -316,9 +337,10 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   let selectedFiles = []
 
   const onSubmitFiles = () => {
-
+    console.log('selected files', selectedFiles)
     let data = new FormData();
     selectedFiles.map(f => data.append('file', f))
+    console.log('data value', data)
     console.log('sumbit values', data.values())
     console.log('submit keys', data.keys())
   }
@@ -335,6 +357,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
         list.className = "list-group"
         fileList.appendChild(list);
         for (let i = 0; i < fileElem.files.length; i++) {
+          selectedFiles.push(fileElem.files[i])
           const li = document.createElement("li");
           li.className = "list-group-item"
           list.appendChild(li);
@@ -347,7 +370,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
             img.height = 75;
             img.width = 75
             img.onload = function() {
-              URL.revokeObjectURL(img.src);
+              URL.revokeObjectURL(this.src);
             }
             img.className = "img-fluid"
             li.appendChild(img);
@@ -361,6 +384,15 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
           info.className="file-info"
           info.innerHTML = fileElem.files[i].name + " : " + formatBytes(fileElem.files[i].size);
           li.appendChild(info);
+
+          const del = document.createElement("span")
+          del.className = "cursor"
+          del.innerHTML = "<i class='fa fa-times'></i>"
+          del.style.float = "right"
+          del.onclick = (function() {
+            list.removeChild(li);
+          })
+          li.appendChild(del);
         }
       }
   }
@@ -411,7 +443,6 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                    
                     </div>
                     <br/>
-                   <br/>
                    <br/>
                     {props.type === "personalInjury" ? (
                       <div className="card w-100" style={{padding: "1em"}}>

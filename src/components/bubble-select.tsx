@@ -55,6 +55,17 @@ const BubbleSelect = (props: any) => {
           </div>
           
         </div>
+
+
+        <div className="mb-4 col-6 col-sm-6 col-md-4 col-lg-3">
+          <div className="ripe-malinka-gradient color-block-5 mb-3 mx-auto rounded-circle z-depth-1 cursor" 
+          onClick={() => props.cb("laser")}
+          style={{display: "table"}}>
+              <h5 className="mb-0" style={{display: "table-cell", verticalAlign: "middle"}}><b>Laser/Non Laser</b></h5>
+          </div>
+          
+        </div>
+
         <div className="mb-4 col-6 col-sm-6 col-md-4 col-lg-3">
           <div className="rare-wind-gradient color-block-5 mb-3 mx-auto rounded-circle z-depth-1 cursor" 
           onClick={() => props.cb("other")}
