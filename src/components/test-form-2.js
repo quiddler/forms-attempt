@@ -1,11 +1,12 @@
 import React from 'react';
-import { Formik, Form, Field, FieldArray } from 'formik'
+import { Formik, Form, Field } from 'formik'
 import ZgoDatePicker from './zgo-date-picker'
 import SignatureCanvas from 'react-signature-canvas'
 import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
+import { MDBBtn, MDBModal, MDBModalBody, MDBModalFooter, MDBModalHeader, MDBContainer, MDBListGroup, MDBListGroupItem } from 'mdbreact';
 
 var incidentType = ""
 
@@ -158,10 +159,52 @@ const validate = (values) => {
       if (!values.medicalZipCode) errors.medicalZipCode = "Required"
       if (!values.medicalPhone) errors.medicalPhone = "Required"
     }
+    
+    if(incidentType === "laser") {
+      if (!values.laserCaseNumber) errors.laserCaseNumber = "Required"
+      if (!values.laserCustomer) errors.laserCustomer = "Required"
+      if (!values.laserDoctorName) errors.laserDoctorName = "Required"
+      if (!values.laserProcedureName) errors.laserProcedureName = "Required"
+      if (!values.laserPatientReferenceNumber) errors.laserPatientReferenceNumber = "Required"
+      if (!values.laserSafetyOfficer) errors.laserSafetyOfficer = "Required"
+      if (!values.laserDeputySafetyOfficer) errors.laserDeputySafetyOfficer = "Required"
+      if (!values.laserAccessoriesAndFibers.trim()) errors.laserAccessoriesAndFibers = "Required"
+      if (!values.laserWorkOrderNumber) errors.laserWorkOrderNumber = "Required"
 
+      if (values.fortecEquipmentPatientInjured) {
+        if (!values.whoWasInjured) errors.whoWasInjured = "Required"
+        if (!values.medicalProvider) errors.medicalProvider = "Required"
+        if (!values.medicalAddress) errors.medicalAddress = "Required"
+        if (!values.medicalCity) errors.medicalCity = "Required"
+        if (!values.medicalState) errors.medicalState = "Required"
+        if (!values.medicalZipCode) errors.medicalZipCode = "Required"
+        if (!values.medicalPhone) errors.medicalPhone = "Required"
+      }
+    }
 
   return errors;
 };
+
+const validate2 = (values2) => {
+
+  const errors = {};
+
+  if (!values2.witnessName.trim()) errors.witnessName = 'Required'
+  if (!values2.witnessDescription.trim()) errors.witnessDescription = 'Required'
+  if (!values2.witnessCode.trim()) errors.witnessCode = 'Required'
+  if (!values2.witnessAddress.trim()) errors.witnessAddress = 'Required'
+  if (!values2.witnessPhone.trim()) errors.witnessPhone = 'Required'
+
+  return errors;
+}
+
+const witnessState = {
+  witnessName: "",
+  witnessDescription: "",
+  witnessCode: "",
+  witnessAddress: "",
+  witnessPhone: ""
+}
 
 const initialState = {
 
@@ -236,16 +279,21 @@ const initialState = {
   damageLossOrTheftPoliceReportFiled: false,
 
   witnesses : [
-    {
-      name: "",
-      desc: "",
-      code: "",
-      addr: ""
-    }
+    // {
+    //   witnessName: "",
+    //   witnessDescription: "",
+    //   witnessCode: "",
+    //   witnessAddress: "",
+    //   witnessPhone: ""
+    // }
   ],
   files : [
     {
-      data: ''
+      name: '',
+      type: '',
+      bytes: 0,
+      data: '',
+
     }
   ],
 
@@ -258,8 +306,11 @@ const initialState = {
   laserWasAnyoneInjured: false,
   laserSafetyOfficer: '',
   laserDeputySafetyOfficer: '',
+  laserAccessoriesAndFibers: '',
+  laserWorkOrderNumber : '',
   assetList: [
     {
+      assetId: '',
       assetNumber: '',
       assetModelName: '',
       assetSerialNumber: ''
@@ -333,6 +384,9 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   const [policeReportFiled, setPoliceReportFiled] = React.useState(false)
   const [damagedOtherVehicle, setDamagedOtherVehicle] = React.useState(false)
   const [differentDriver, setDifferentDriver] = React.useState(false)
+  const [modal, setModal] = React.useState(false)
+  const [modal2, setModal2] = React.useState(false)
+  const [witnesses, setWitnesses] = React.useState([])
   
   let selectedFiles = []
 
@@ -397,6 +451,10 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
       }
   }
 
+  const toggle = () => setModal(!modal)
+
+  const toggle2 = () => setModal2(!modal2)
+
   const handleFileSelect = () => {
     var fileElem = document.getElementById("fileElem")
     fileElem.click()
@@ -413,6 +471,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
            setTimeout(() => {
             onSubmitFiles()
              values.employeeSignature = trim(sigpad)
+             values.witnesses = witnesses;
              if (sigpad.isEmpty()) {
                setSubmitting(false)
                return false
@@ -509,6 +568,48 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                       </div>
                     ) : null }
 
+
+{props.type === "laser" ? (
+                      <div className="card w-100" style={{padding: "1em"}}>
+                          <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Laser / Non Laser Information</h2>
+                          <div className="row">
+                            <ZgoTextInput label="Case Number" name="laserCaseNumber" type="text" placeholder="" />
+                            <ZgoTextInput label="Work Order Number" name="laserWorkOrderNumber" type="text" placeholder="" />
+                            <ZgoTextInput label="Customer" name="laserCustomer" type="text" placeholder="" />
+                            <ZgoTextInput label="Doctor's Name" name="laserDoctorName" type="text" placeholder="" />
+                            <ZgoTextInput label="Procdure Name" name="laserProcedureName" type="text" placeholder="" />
+                            <ZgoTextInput label="Patient Reference #" name="laserPatientReferenceNumber" type="text" placeholder="" />
+                            <ZgoTextInput label="Laser Safety Officer" name="laserSafetyOfficer" type="text" placeholder="Jane Doe" />
+                            <ZgoTextInput label="Deputy Safety Officer" name="laserDeputySafetyOfficer" type="text" placeholder="Jane Doe" />
+
+                            <ZgoTextArea name="laserAccessoriesAndFibers" label="Accessories and Fibers ( list asset and serial numbers for accessories / lot numbers for fibers )" />
+
+                            <ZgoCheckbox name="fortecEquipmentPatientInjured" cb={() => {values.fortecEquipmentPatientInjured = !values.fortecEquipmentPatientInjured; setIsInjured(!isInjured);}}>
+                              Was anyone injured?
+                            </ZgoCheckbox>
+                            {isInjured ? medical() : null}
+                            <ZgoCheckbox name="laserEveryoneWearingProtection" cb={() => {values.laserEveryoneWearingProtection = !values.laserEveryoneWearingProtection;}}>
+                              Was everyone wearing protection?
+                            </ZgoCheckbox>
+
+                            <MDBContainer>
+                              <MDBBtn onClick={toggle2}>Modal</MDBBtn>
+                              <MDBModal isOpen={modal2} toggle={toggle2}>
+                                <MDBModalHeader toggle={toggle2}>MDBModal title</MDBModalHeader>
+                                <MDBModalBody>
+                                  (...)
+                                </MDBModalBody>
+                                <MDBModalFooter>
+                                  <MDBBtn color="secondary" onClick={toggle2}>Close</MDBBtn>
+                                  <MDBBtn color="primary">Save changes</MDBBtn>
+                                </MDBModalFooter>
+                              </MDBModal>
+                            </MDBContainer>
+                          </div>
+                      </div>
+                    ) : null }
+
+
                     {props.type === "equipmentDamage" ? (
                       <>
                       <div className="card w-100" style={{padding: "1em"}}>
@@ -565,78 +666,24 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
                     <div className="card" style={{padding: "1em"}}>
                     <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Witnesses</h2>
-                   <FieldArray name="witnesses">
-                      {({ insert, remove, push }) => (
-                        <div>
-                          {values.witnesses.length > 0 &&
-                            values.witnesses.map((witness, index) => (
-                              <>
-                              <div className="row" key={index}>
-                                <div className="col">
-                                  <label htmlFor={`witnesses.${index}.name`}>Name</label>
-                                  <Field
-                                    name={`witnesses.${index}.name`}
-                                    placeholder="Jane Doe"
-                                    type="text"
-                                    className="form-control"
-                                  />
-                                </div>
+                   
+                   
+                    <MDBContainer>
+                      <MDBBtn color="primary" onClick={toggle}>Add Witness</MDBBtn>
+                      <MDBListGroup>
+                        
+                      {witnesses.length > 0 ? witnesses.map( (w, i) => (
+                        <MDBListGroupItem key={i}>
+                          <span style={{float: "right"}} onClick={() => setWitnesses(witnesses.filter((x, idx) => idx !== i))}><i className="fa fa-trash"></i></span>
+                          <p><strong>{w.witnessName}</strong>, {w.witnessCode}, {w.witnessAddress}, {w.witnessPhone}</p>
+                          <p>{w.witnessDescription}</p>
+                          <hr/>
+                        </MDBListGroupItem>
+                      )) : null}
+                      
+                      </MDBListGroup>
+                    </MDBContainer>
 
-                                <div className="col">
-                                  <label htmlFor={`witnesses.${index}.addr`}>Address</label>
-                                  <Field
-                                    name={`witnesses.${index}.addr`}
-                                    placeholder=""
-                                    type="text"
-                                    className="form-control"
-                                  />
-                                </div>
-
-                                <div className="col">
-                                  <label htmlFor={`witnesses.${index}.desc`}>Description</label>
-                                  <Field
-                                    name={`witnesses.${index}.desc`}
-                                    placeholder=""
-                                    type="text"
-                                    className="form-control"
-                                  />
-                                </div>
-
-                                <div className="col">
-                                <ZgoSelect label="Code" name={`witnesses.${index}.code`}>
-                                  <option value="">Select</option>
-                                  <option value="employee">Employee</option>
-                                  <option value="pedestrian">Pedestrian</option>
-                                  <option value="client">Client</option>
-                                  <option value="witness">Witness</option>
-                                </ZgoSelect>
-                                </div>
-
-                                  <div className="col">
-                                        <button
-                                          style={{width: "94%"}}
-                                          type="button"
-                                          className="btn btn-danger"
-                                          onClick={() => remove(index)}
-                                        >
-                                          X
-                                        </button>
-                                </div>
-                                </div>
-                              </>
-                            ))}
-                          <br />
-                          <br />
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            onClick={() => push({ name: "", desc: "", code: "", addr: "" })}
-                          >
-                            Add Witness
-                          </button>
-                        </div>
-                      )}
-                    </FieldArray>
                     </div>
                    <br />
                    <br />
@@ -697,6 +744,57 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
            
          </Form>)}
        </Formik>
+
+       <MDBModal isOpen={modal} toggle={toggle} size="fluid" fullHeight position="right">
+
+                      <Formik
+                            initialValues={witnessState}
+                            validate={validate2}
+                            onSubmit={(values2, { setSubmitting }) => {
+                              setTimeout(() => {    
+                                console.log(values2)
+                                setWitnesses(witnesses.concat(values2))
+                                setSubmitting(false)
+                                toggle()
+                              }, 400)
+                            }}
+                          >
+                            {({ isSubmitting2, values2 }) => (
+                              <>
+                        <MDBModalHeader toggle={toggle}>Add a Witness</MDBModalHeader>
+                        <MDBModalBody>
+                          <MDBContainer>
+                          
+                            <Form>
+                              
+                              <div className="row">
+
+                                <ZgoTextInput name="witnessName" placeholder="Jane Doe" type="text" label="Name" />
+                                <ZgoTextInput name="witnessAddress" placeholder="123 Incident St" type="text" label="Address" />
+                                <ZgoTextInput name="witnessPhone" placeholder="2347039148" type="tel" label="Phone" />
+
+                                <ZgoSelect label="Code" name="witnessCode">
+                                    <option value="">Select</option>
+                                    <option value="employee">Employee</option>
+                                    <option value="pedestrian">Pedestrian</option>
+                                    <option value="client">Client</option>
+                                    <option value="witness">Witness</option>
+                                  </ZgoSelect>
+
+                                <ZgoTextArea name="witnessDescription" label="Description" />
+                                
+                              </div>
+                              <MDBBtn color="secondary" onClick={toggle}>Close</MDBBtn>
+                              <MDBBtn color="primary" type="submit" disabled={isSubmitting2}>Save Witness</MDBBtn>
+                            </Form>
+                            
+                          </MDBContainer>
+
+                        </MDBModalBody>
+                              </>
+                        )}
+                        </Formik>
+                      </MDBModal>
      </div>
    );
  };

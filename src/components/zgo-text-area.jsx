@@ -9,7 +9,7 @@ const ZgoTextArea = ({ label, ...props }) => {
       <div className="col col-12" style={{padding : "1em"}}>
         <div className="form-group">
             <label htmlFor={props.id || props.name}>
-            {props.label}
+            {label}
             </label>
             <textarea
             {...field}
