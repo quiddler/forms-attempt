@@ -126,6 +126,9 @@ const validate = (values) => {
 
     if(incidentType === "propertyDamage" || incidentType === "theft") {
       if (!values.whatWasDamagedOrStolen) errors.whatWasDamagedOrStolen = "Required"
+      if (values.damageLossOrTheftPoliceReportFiled) {
+        if(!values.damageLossOrTheftPoliceReportNumber) errors.damageLossOrTheftPoliceReportNumber = "Required"
+      }
     }
 
     if(incidentType === "equipmentDamage") {
@@ -185,7 +188,7 @@ const validate = (values) => {
   return errors;
 };
 
-const validate2 = (values2) => {
+const validateWitnesses = (values2) => {
 
   const errors = {};
 
@@ -277,6 +280,7 @@ const initialState = {
 
   whatWasDamagedOrStolen: '',
   damageLossOrTheftPoliceReportFiled: false,
+  damageLossOrTheftPoliceReportNumber: '',
 
   witnesses : [
     // {
@@ -441,7 +445,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
           const del = document.createElement("span")
           del.className = "cursor"
-          del.innerHTML = "<i class='fa fa-times'></i>"
+          del.innerHTML = "<i class='fa fa-trash error'></i>"
           del.style.float = "right"
           del.onclick = (function() {
             list.removeChild(li);
@@ -548,9 +552,10 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                           <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Property Damage Information</h2>
                           <div className="row">
                           <ZgoTextInput label="What was Damaged?" name="whatWasDamagedOrStolen" type="text" placeholder="" />
-                          <ZgoCheckbox name="damageLossOrTheftPoliceReportFiled" cb={() => values.damageLossOrTheftPoliceReportFiled = !values.damageLossOrTheftPoliceReportFiled}>
+                          <ZgoCheckbox name="damageLossOrTheftPoliceReportFiled" cb={() => {values.damageLossOrTheftPoliceReportFiled = !values.damageLossOrTheftPoliceReportFiled; setPoliceReportFiled(!policeReportFiled)}}>
                             Was a police report filed?
                           </ZgoCheckbox>
+                          {policeReportFiled ? <ZgoTextInput label="Police Report #" name="damageLossOrTheftPoliceReportNumber" type="text" placeholder="1234567890R" /> : null}
                           </div>
                       </div>
                     ) : null }
@@ -561,9 +566,10 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                           <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Theft Information</h2>
                           <div className="row">
                           <ZgoTextInput label="What was stolen?" name="whatWasDamagedOrStolen" type="text" placeholder="" />
-                          <ZgoCheckbox name="damageLossOrTheftPoliceReportFiled" cb={() => values.damageLossOrTheftPoliceReportFiled = !values.damageLossOrTheftPoliceReportFiled}>
+                          <ZgoCheckbox name="damageLossOrTheftPoliceReportFiled" cb={() => {values.damageLossOrTheftPoliceReportFiled = !values.damageLossOrTheftPoliceReportFiled; setPoliceReportFiled(!policeReportFiled)}}>
                             Was a police report filed?
                           </ZgoCheckbox>
+                          {policeReportFiled ? <ZgoTextInput label="Police Report #" name="damageLossOrTheftPoliceReportNumber" type="text" placeholder="1234567890R" /> : null}
                           </div>
                       </div>
                     ) : null }
@@ -574,13 +580,13 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                           <h2 style={{textAlign: "center", width: "100%", marginTop: "1.25rem"}}>Laser / Non Laser Information</h2>
                           <div className="row">
                             <ZgoTextInput label="Case Number" name="laserCaseNumber" type="text" placeholder="" />
-                            <ZgoTextInput label="Work Order Number" name="laserWorkOrderNumber" type="text" placeholder="" />
+                            <ZgoTextInput label="Work Order #" name="laserWorkOrderNumber" type="text" placeholder="" />
                             <ZgoTextInput label="Customer" name="laserCustomer" type="text" placeholder="" />
                             <ZgoTextInput label="Doctor's Name" name="laserDoctorName" type="text" placeholder="" />
                             <ZgoTextInput label="Procdure Name" name="laserProcedureName" type="text" placeholder="" />
                             <ZgoTextInput label="Patient Reference #" name="laserPatientReferenceNumber" type="text" placeholder="" />
                             <ZgoTextInput label="Laser Safety Officer" name="laserSafetyOfficer" type="text" placeholder="Jane Doe" />
-                            <ZgoTextInput label="Deputy Safety Officer" name="laserDeputySafetyOfficer" type="text" placeholder="Jane Doe" />
+                            <ZgoTextInput label="Deputy LSO" name="laserDeputySafetyOfficer" type="text" placeholder="Jane Doe" />
 
                             <ZgoTextArea name="laserAccessoriesAndFibers" label="Accessories and Fibers ( list asset and serial numbers for accessories / lot numbers for fibers )" />
 
@@ -674,10 +680,9 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                         
                       {witnesses.length > 0 ? witnesses.map( (w, i) => (
                         <MDBListGroupItem key={i}>
-                          <span style={{float: "right"}} onClick={() => setWitnesses(witnesses.filter((x, idx) => idx !== i))}><i className="fa fa-trash"></i></span>
+                          <span style={{float: "right"}} onClick={() => setWitnesses(witnesses.filter((x, idx) => idx !== i))}><i className="fa fa-trash error"></i></span>
                           <p><strong>{w.witnessName}</strong>, {w.witnessCode}, {w.witnessAddress}, {w.witnessPhone}</p>
-                          <p>{w.witnessDescription}</p>
-                          <hr/>
+                          <p>"{w.witnessDescription}"</p>
                         </MDBListGroupItem>
                       )) : null}
                       
@@ -745,11 +750,11 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
          </Form>)}
        </Formik>
 
-       <MDBModal isOpen={modal} toggle={toggle} size="fluid" fullHeight position="right">
+       <MDBModal isOpen={modal} toggle={toggle} size="fluid" fullHeight position="top">
 
                       <Formik
                             initialValues={witnessState}
-                            validate={validate2}
+                            validate={validateWitnesses}
                             onSubmit={(values2, { setSubmitting }) => {
                               setTimeout(() => {    
                                 console.log(values2)
