@@ -161,3 +161,8 @@ code {
   height: 75px;
   width: 75px;
 }
+
+.md-form label {
+  display: inline !important;
+  margin-left: 3em;
+}

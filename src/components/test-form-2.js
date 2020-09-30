@@ -1,12 +1,19 @@
 import React from 'react';
-import { Formik, Form, Field } from 'formik'
-import ZgoDatePicker from './zgo-date-picker'
+import { Formik, Form } from 'formik'
 import SignatureCanvas from 'react-signature-canvas'
 import ZgoTextInput from './zgo-text-input'
 import ZgoCheckbox from './zgo-checkbox'
 import ZgoTextArea from './zgo-text-area'
 import ZgoSelect from './zgo-select'
-import { MDBBtn, MDBModal, MDBModalBody, MDBModalFooter, MDBModalHeader, MDBContainer, MDBListGroup, MDBListGroupItem } from 'mdbreact';
+import { MDBBtn, 
+  MDBModal, 
+  MDBModalBody, 
+  MDBModalHeader, 
+  MDBContainer, 
+  MDBListGroup, 
+  MDBListGroupItem,
+  MDBAutocomplete, MDBRow } from 'mdbreact';
+import { NOTINITIALIZED } from 'dns';
 
 var incidentType = ""
 
@@ -54,6 +61,7 @@ const validate = (values) => {
     errors.incidentZip = 'Not a zip code';
   }
 
+  if (!values.incidentDate) errors.incidentDate = 'Required'
   if (!values.incidentTime) errors.incidentTime = 'Required'
 
   if (!values.employeeStartTime) errors.employeeStartTime = 'Required'
@@ -190,7 +198,7 @@ const validate = (values) => {
 
 const validateWitnesses = (values2) => {
 
-  const errors = {};
+  const errors = {}
 
   if (!values2.witnessName.trim()) errors.witnessName = 'Required'
   if (!values2.witnessDescription.trim()) errors.witnessDescription = 'Required'
@@ -199,6 +207,14 @@ const validateWitnesses = (values2) => {
   if (!values2.witnessPhone.trim()) errors.witnessPhone = 'Required'
 
   return errors;
+}
+
+const validateAssets = (values) => {
+  const errors = {}
+
+  if (!values.assetNumber) errors.assetNumber = 'Required'
+
+  return errors
 }
 
 const witnessState = {
@@ -228,7 +244,7 @@ const initialState = {
   incidentCity: '',
   incidentState: '',
   incidentZip: '',
-  incidentType: incidentType,
+  incidentType: '',
 
   medicalProvider: '',
   medicalAddress: '',
@@ -283,21 +299,12 @@ const initialState = {
   damageLossOrTheftPoliceReportNumber: '',
 
   witnesses : [
-    // {
-    //   witnessName: "",
-    //   witnessDescription: "",
-    //   witnessCode: "",
-    //   witnessAddress: "",
-    //   witnessPhone: ""
-    // }
-  ],
-  files : [
     {
-      name: '',
-      type: '',
-      bytes: 0,
-      data: '',
-
+      witnessName: "",
+      witnessDescription: "",
+      witnessCode: "",
+      witnessAddress: "",
+      witnessPhone: ""
     }
   ],
 
@@ -317,7 +324,8 @@ const initialState = {
       assetId: '',
       assetNumber: '',
       assetModelName: '',
-      assetSerialNumber: ''
+      assetSerialNumber: '',
+      assetLocation: ''
     }
   ]
 
@@ -391,8 +399,11 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   const [modal, setModal] = React.useState(false)
   const [modal2, setModal2] = React.useState(false)
   const [witnesses, setWitnesses] = React.useState([])
+  const [assets, setAssets] = React.useState([])
+  const [files, setFiles] = React.useState([])
   
   let selectedFiles = []
+  let assetNumbers = ["XPS-1", "XPS-2", "XPS-3", "CRYO-3", "CRYO-4"]
 
   const onSubmitFiles = () => {
     console.log('selected files', selectedFiles)
@@ -404,56 +415,28 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
   }
 
   const handleFileChange = (e) => {
-    const fileElem = document.getElementById("fileElem"),
-          fileList = document.getElementById("fileList");
-
-      if (!fileElem.files.length) {
-        fileList.innerHTML = "<p>No files selected!</p>";
-      } else {
-        fileList.innerHTML = "";
-        const list = document.createElement("ul");
-        list.className = "list-group"
-        fileList.appendChild(list);
-        for (let i = 0; i < fileElem.files.length; i++) {
-          selectedFiles.push(fileElem.files[i])
-          const li = document.createElement("li");
-          li.className = "list-group-item"
-          list.appendChild(li);
-
-          if (fileElem.files[i].type.includes("image")) {
-
-            const img = document.createElement("img");
-            img.src = URL.createObjectURL(fileElem.files[i]);
-
-            img.height = 75;
-            img.width = 75
-            img.onload = function() {
-              URL.revokeObjectURL(this.src);
-            }
-            img.className = "img-fluid"
-            li.appendChild(img);
-          } else {
-            const div = document.createElement("div")
-            div.className = "purple-gradient"
-            li.appendChild(div)
-          }
-
-          const info = document.createElement("span");
-          info.className="file-info"
-          info.innerHTML = fileElem.files[i].name + " : " + formatBytes(fileElem.files[i].size);
-          li.appendChild(info);
-
-          const del = document.createElement("span")
-          del.className = "cursor"
-          del.innerHTML = "<i class='fa fa-trash error'></i>"
-          del.style.float = "right"
-          del.onclick = (function() {
-            list.removeChild(li);
-          })
-          li.appendChild(del);
-        }
-      }
+    const fs = []
+    for (var i = 0; i < e.target.files.length; ++i) {
+      fs.push(e.target.files[i])
+    }
+    setFiles(fs)    
   }
+
+  const imageFile = (file, i) => (
+    <li className="list-group-item" key={i}>
+      <span style={{float: "right"}} className="cursor" onClick={() => setFiles(files.filter( (x, idx) => idx !== i))}><i className="fa fa-trash error"></i></span>
+      <img height="75" width="75" onLoad={URL.revokeObjectURL(file)} className="img-fluid" src={URL.createObjectURL(file)} />
+      <span className="file-info">{file.name + " : " + formatBytes(file.size)}</span>
+    </li>
+  )
+
+  const nonImageFile = (file, i) => (
+    <li className="list-group-item" key={i}>
+      <span style={{float: "right"}} className="cursor" onClick={() => setFiles(files.filter( (x, idx) => idx !== i))}><i className="fa fa-trash error"></i></span>
+      <div className="purple-gradient"></div>
+      <span className="file-info">{file.name + " : " + formatBytes(file.size)}</span>
+    </li>
+  )
 
   const toggle = () => setModal(!modal)
 
@@ -474,6 +457,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
          onSubmit={(values, { setSubmitting }) => {
            setTimeout(() => {
             onSubmitFiles()
+            values.incidentType = incidentType
              values.employeeSignature = trim(sigpad)
              values.witnesses = witnesses;
              if (sigpad.isEmpty()) {
@@ -499,7 +483,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                     <ZgoTextInput label="Incident State" name="incidentState" type="text" placeholder="Ohio" />
                     <ZgoTextInput label="Incident Zip" name="incidentZip" type="number" placeholder="44236" />
 
-                    <ZgoDatePicker cb={(d) => values.incidentDate = d} text="Incident Date:"/>
+                    <ZgoTextInput label="Incident Date" name="incidentDate" type="date"/>
 
                     <ZgoTextInput label="Incident Time" name="incidentTime" type="time" placeholder="12:00AM" />
                     </div>  
@@ -599,17 +583,18 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                             </ZgoCheckbox>
 
                             <MDBContainer>
-                              <MDBBtn onClick={toggle2}>Modal</MDBBtn>
-                              <MDBModal isOpen={modal2} toggle={toggle2}>
-                                <MDBModalHeader toggle={toggle2}>MDBModal title</MDBModalHeader>
-                                <MDBModalBody>
-                                  (...)
-                                </MDBModalBody>
-                                <MDBModalFooter>
-                                  <MDBBtn color="secondary" onClick={toggle2}>Close</MDBBtn>
-                                  <MDBBtn color="primary">Save changes</MDBBtn>
-                                </MDBModalFooter>
-                              </MDBModal>
+                              <MDBBtn onClick={toggle2} color="primary">Add Asset</MDBBtn>
+                              <MDBRow>
+                                <div className="col col-12">
+                                  <MDBListGroup>
+                                    {assets.length > 0 ? assets.map( (a, i) => (
+                                    <MDBListGroupItem key={i}>
+                                      <span style={{float: "right"}} onClick={() => setAssets(assets.filter((x, idx) => idx !== i))}><i className="fa fa-trash error cursor"></i></span>
+                                      {a.assetNumber}
+                                    </MDBListGroupItem>)) : null}
+                                  </MDBListGroup>
+                                </div>
+                              </MDBRow>
                             </MDBContainer>
                           </div>
                       </div>
@@ -680,7 +665,7 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                         
                       {witnesses.length > 0 ? witnesses.map( (w, i) => (
                         <MDBListGroupItem key={i}>
-                          <span style={{float: "right"}} onClick={() => setWitnesses(witnesses.filter((x, idx) => idx !== i))}><i className="fa fa-trash error"></i></span>
+                          <span style={{float: "right"}} onClick={() => setWitnesses(witnesses.filter((x, idx) => idx !== i))}><i className="fa fa-trash error cursor"></i></span>
                           <p><strong>{w.witnessName}</strong>, {w.witnessCode}, {w.witnessAddress}, {w.witnessPhone}</p>
                           <p>"{w.witnessDescription}"</p>
                         </MDBListGroupItem>
@@ -708,7 +693,9 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
                                   />
                                   <button type="button" className="btn btn-primary" id="fileSelect" onClick={handleFileSelect}>Select files</button> 
                                   <div id="fileList">
-                                    <p>No files selected...</p>
+                                    <ul className="list-group">
+                                      {files.length > 0 ? (files.map( (f, i) => f.type.includes("image") ? imageFile(f, i) : nonImageFile(f, i))): null}
+                                    </ul>
                                   </div>
                                 </div>
                               </div>
@@ -797,6 +784,46 @@ const otherVehicle = (values, differentDriver, setDifferentDriver) => (
 
                         </MDBModalBody>
                               </>
+                        )}
+                        </Formik>
+                      </MDBModal>
+
+                      <MDBModal isOpen={modal2} toggle={toggle2}>
+                        <Formik
+                          initialValues={{
+                            assetNumber : ''
+                          }}
+                          validate={validateAssets}
+                          onSubmit={(values3, { setSubmitting }) => {
+                            setTimeout(() => {
+                              setAssets(assets.concat(values3))
+                              setSubmitting(false)
+                              toggle2()
+                            }, 400)
+                          }}
+                        >
+                          {({ isSubmitting3, values }) => (
+                            <>
+                        <MDBModalHeader toggle={toggle2}>MDBModal title</MDBModalHeader>
+                        <MDBModalBody>
+                          <Form>
+                              
+                            <div className="row">
+                              <MDBAutocomplete 
+                                data={assetNumbers}
+                                label="Choose your asset"
+                                icon=""
+                                className="ml-5"
+                                clear
+                                id="assetNumber"
+                                getValue={(x) => values.assetNumber = x} />
+                            </div>
+
+                            <MDBBtn color="secondary" onClick={toggle2}>Close</MDBBtn>
+                            <MDBBtn color="primary" type="submit" disabled={isSubmitting3}>Save changes</MDBBtn>
+                          </Form>
+                        </MDBModalBody>
+                        </>
                         )}
                         </Formik>
                       </MDBModal>
